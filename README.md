@@ -1,7 +1,3 @@
-Aqui está um **README** profissional e estruturado para o seu projeto, com tabelas organizando as informações de forma clara e objetiva.  
-
----  
-
 # **Stock Monitoring - Monitoramento Inteligente de Papel Higiênico**  
 
 ## **1. Descrição**  
