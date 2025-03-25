@@ -6,7 +6,7 @@ O **Stock Monitoring** é um sistema baseado em IoT para monitoramento do estoqu
 
 O objetivo do projeto é otimizar a reposição de papel higiênico, garantindo maior eficiência na gestão de insumos e melhorando a experiência dos usuários em banheiros de locais públicos, como shoppings, hospitais e restaurantes.  
 
----
+---  
 
 ## **2. Tecnologias Utilizadas**  
 
@@ -19,7 +19,7 @@ O objetivo do projeto é otimizar a reposição de papel higiênico, garantindo 
 | **Wi-Fi** | Conexão de rede utilizada para comunicação do ESP32 com o servidor. |  
 | **Servidor na Nuvem** | Responsável por armazenar e processar os alertas recebidos. |  
 
----
+---  
 
 ## **3. Arquitetura do Sistema**  
 
@@ -40,9 +40,15 @@ A tabela a seguir apresenta um resumo dos componentes e suas funções:
 | **Servidor na Nuvem** | Armazena os dados e emite alertas. |  
 | **Painel de Controle** | Interface para monitoramento dos dispensers. |  
 
----
+---  
 
-## **4. Benefícios do Sistema**  
+## **4. Contribuição da Equipe**  
+
+Embora o projeto utilize diversas tecnologias e metodologias já estabelecidas, a principal contribuição da equipe foi a **definição das regras e parâmetros do sistema**. O time foi responsável por criar as regras de alerta e aviso, ajustando os **parâmetros conforme o tamanho do dispenser**. Além disso, toda a **ligação entre as tecnologias** (sensor, ESP32, MQTT e sistema na nuvem) foi desenvolvida pela equipe para garantir um funcionamento eficiente e integrado.  
+
+---  
+
+## **5. Benefícios do Sistema**  
 
 | Benefício | Descrição |  
 |------------|-------------|  
@@ -52,9 +58,9 @@ A tabela a seguir apresenta um resumo dos componentes e suas funções:
 | **Gestão Eficiente** | Pode ser integrado a sistemas maiores de gerenciamento de insumos. |  
 | **Escalabilidade** | Possibilidade de expansão para outros tipos de estoque. |  
 
----
+---  
 
-## **5. Melhorias Futuras**  
+## **6. Melhorias Futuras**  
 
 O sistema está em fase inicial de desenvolvimento e poderá ser aprimorado com as seguintes funcionalidades:  
 
@@ -65,9 +71,9 @@ O sistema está em fase inicial de desenvolvimento e poderá ser aprimorado com 
 | **Interface Gráfica Avançada** | Desenvolvimento de um painel web para visualização dos níveis de papel. |  
 | **Integração com Outros Sistemas** | Conexão com sistemas de gestão de estoque já existentes. |  
 
----
+---  
 
-## **6. Testes e Validação**  
+## **7. Testes e Validação**  
 
 A fase de testes será realizada para validar a precisão das medições do sensor, a confiabilidade do envio de alertas via MQTT e a eficiência do sistema na prevenção da falta de papel. Os testes incluirão:  
 
@@ -75,13 +81,14 @@ A fase de testes será realizada para validar a precisão das medições do sens
 - Testes de conectividade e latência do envio de alertas via MQTT.  
 - Testes de usabilidade do painel de controle (futuramente).  
 
----
+---  
 
-## **7. Equipe**  
+## **8. Equipe**  
 
 | Nome | Função |  
 |------------|-------------|  
-| **Arthur Peixoto Schiller** | Desenvolvimento de firmware e integração de hardware. |  
-| **Franc Wang** | Desenvolvimento de backend e comunicação MQTT. |  
-| **Juliana de Oliveira** | Desenvolvimento da interface e testes do sistema. |  
+| **Arthur Peixoto Schiller** | Desenvolvimento |  
+| **Franc Wang** | Desenvolvimento |  
+| **Juliana de Oliveira** | Desenvolvimento |  
 | **Prof. Rigel Fernandes** | Orientação acadêmica e supervisão técnica. |  
+
