@@ -4,7 +4,7 @@
 
 Ultrasonic ultrasonic(Trig, Echo);
 
-int tamanhoRecipiente = 20;
+float tamanhoRecipiente = 14.41;
 
 void setup() {
   Serial.begin(9600);
@@ -28,6 +28,9 @@ void loop() {
 
   Serial.println("Distancia em cm: ");
   Serial.println(cmMsec);
+  Serial.println("Porcentagem");
+  Serial.println((-(cmMsec/tamanhoRecipiente) * 100) + 100 );
+
 
 
 
