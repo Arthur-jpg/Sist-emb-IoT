@@ -26,6 +26,7 @@ function onSuccess() {
   console.log("✅ Conectado ao broker Mosquitto!");
   isConnected = true;
   client.subscribe("teste/mosquitto/expo");
+  client.subscribe("teste/mosquitto/expo2");
 }
 
 function onFail() {

@@ -6,33 +6,53 @@ import { connect, setOnMessageCallback } from './src/service/mqttservice';
 export default function App() {
   const [message, setMessage] = useState('');
   const [topic, setTopic] = useState('');
-  const [receivedMessages, setReceivedMessages] = useState([]);
+  const [receivedMessagesMensagem, setReceivedMessagesMensagem] = useState([]);
+  const [receivedMessagesWarning, setReceivedMessagesWaring] = useState([]);
 
   useEffect(() => {
     connect();
 
     setOnMessageCallback((topico, mensagem) => {
-      setReceivedMessages((prev) => [
-        { topico, mensagem, id: Date.now() },
-        ...prev,
-      ]);
+      if (topico === "teste/mosquitto/expo") {
+
+        setReceivedMessagesMensagem((prev) => [
+          { topico, mensagem, id: Date.now() },
+          ...prev,
+        ]);
+      }
+
+      if (topico === "teste/mosquitto/expo2") {
+        setReceivedMessagesWaring((prev) => [
+          { topico, mensagem, id: Date.now() },
+          ...prev,
+        ]);
+      }
     });
   }, []);
 
-  const handleSend = () => {
-    sendMessage(topic, message);
-  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>MQTT NO TELEFONE</Text>
 
       <Text style={{ marginTop: 20, fontWeight: 'bold' }}>Mensagens Recebidas:</Text>
-      <ScrollView style={{ marginTop: 10, maxHeight: 200 }}>
-        {receivedMessages.map((msg) => (
-          <Text key={msg.id}> {msg.mensagem}</Text>
-        ))}
-      </ScrollView>
+      <View style={styles.containerMensagens}>
+        <View style={styles.coluna}>
+          <ScrollView style={{ marginTop: 10, maxHeight: 200 }}>
+            {receivedMessagesMensagem.map((msg) => (
+              <Text key={msg.id}> {msg.mensagem}</Text>
+            ))}
+          </ScrollView>
+        </View>
+        <View style={styles.coluna}>
+          <ScrollView style={{ marginTop: 10, maxHeight: 200 }}>
+          {receivedMessagesWarning.map((msg) => (
+            <Text key={msg.id}> {msg.mensagem}</Text>
+          ))}
+          </ScrollView>
+        
+        </View>
+      </View>
 
       <StatusBar style="auto" />
     </View>
@@ -72,4 +92,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  containerMensagens: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 20,
+    marginTop: 20,
+  },
+  coluna: {
+    flex: 1,
+    maxHeight: 200,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    padding: 10,
+  }
 });
