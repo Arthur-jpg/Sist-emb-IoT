@@ -25,8 +25,9 @@ const connect = () => {
 function onSuccess() {
   console.log("✅ Conectado ao broker Mosquitto!");
   isConnected = true;
-  client.subscribe("teste/mosquitto/expo");
-  client.subscribe("teste/mosquitto/expo2");
+  client.subscribe("esp32/hcsr04/status");
+  client.subscribe("esp32/hcsr04/dados");
+  client.subscribe("esp32/hcsr04/teste");
 }
 
 function onFail() {

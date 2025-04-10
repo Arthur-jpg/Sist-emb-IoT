@@ -8,25 +8,42 @@ export default function App() {
   const [topic, setTopic] = useState('');
   const [receivedMessagesMensagem, setReceivedMessagesMensagem] = useState([]);
   const [receivedMessagesWarning, setReceivedMessagesWaring] = useState([]);
+  const [receivedMessagesPercentage, setReceivedMessagesPercentage] = useState([]);
+  const [percentualFloat, setPercentualFloat] = useState(0);
+
+  const gerarIdUnico = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+
 
   useEffect(() => {
     connect();
 
     setOnMessageCallback((topico, mensagem) => {
-      if (topico === "teste/mosquitto/expo") {
+      if (topico === "esp32/hcsr04/status") {
 
         setReceivedMessagesMensagem((prev) => [
-          { topico, mensagem, id: Date.now() },
+          { topico, mensagem, id: gerarIdUnico() },
           ...prev,
         ]);
       }
 
-      if (topico === "teste/mosquitto/expo2") {
+      if (topico === "esp32/hcsr04/dados") {
         setReceivedMessagesWaring((prev) => [
-          { topico, mensagem, id: Date.now() },
+          { topico, mensagem, id: gerarIdUnico() },
           ...prev,
         ]);
       }
+
+      if (topico === "esp32/hcsr04/teste") {
+        const valor = parseFloat(mensagem);
+        setPercentualFloat(valor);
+      
+        setReceivedMessagesPercentage((prev) => [
+          { topico, mensagem, id: gerarIdUnico() },
+          ...prev,
+        ]);
+      }
+      
     });
   }, []);
 
@@ -34,6 +51,24 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>MQTT NO TELEFONE</Text>
+      <View style={{ marginTop: 40, width: '100%', alignItems: 'center' }}>
+  <Text style={{ marginBottom: 10 }}>Percentual: {percentualFloat.toFixed(2)}%</Text>
+  <View style={{
+    width: '100%',
+    height: 25,
+    backgroundColor: '#eee',
+    borderRadius: 10,
+    overflow: 'hidden',
+  }}>
+    <View style={{
+      width: `${percentualFloat}%`,
+      height: '100%',
+      backgroundColor: '#4caf50',
+      transition: 'width 0.3s ease',
+    }} />
+  </View>
+</View>
+
 
       <Text style={{ marginTop: 20, fontWeight: 'bold' }}>Mensagens Recebidas:</Text>
       <View style={styles.containerMensagens}>
@@ -47,6 +82,14 @@ export default function App() {
         <View style={styles.coluna}>
           <ScrollView style={{ marginTop: 10, maxHeight: 200 }}>
           {receivedMessagesWarning.map((msg) => (
+            <Text key={msg.id}> {msg.mensagem}</Text>
+          ))}
+          </ScrollView>
+        
+        </View>
+        <View style={styles.coluna}>
+          <ScrollView style={{ marginTop: 10, maxHeight: 200 }}>
+          {receivedMessagesPercentage.map((msg) => (
             <Text key={msg.id}> {msg.mensagem}</Text>
           ))}
           </ScrollView>
