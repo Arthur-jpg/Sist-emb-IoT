@@ -70,6 +70,7 @@ O sistema está em fase inicial de desenvolvimento e poderá ser aprimorado com 
 | **Compatibilidade Ampliada** | Adaptação para diferentes modelos de dispensers. |  
 | **Interface Gráfica Avançada** | Desenvolvimento de um painel web para visualização dos níveis de papel. |  
 | **Integração com Outros Sistemas** | Conexão com sistemas de gestão de estoque já existentes. |  
+| **Correção de inconsistências** | Correção na inconsistência da medida de desitância e aumento da precisão. |  
 
 ---  
 
