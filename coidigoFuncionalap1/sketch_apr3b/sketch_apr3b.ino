@@ -114,8 +114,8 @@
 #define TRIG_PIN 18  // Pino do Trigger
 #define ECHO_PIN 19  // Pino do Echo
 
-const char* SSID_WIFI = "Juli";       // Nome da rede Wi-Fi
-const char* SENHA_WIFI = "bolo1234678";     // Senha da rede Wi-Fi
+const char* SSID_WIFI = "Teste";       // Nome da rede Wi-Fi
+const char* SENHA_WIFI = "eduw8101";     // Senha da rede Wi-Fi
 const char* MQTT_SERVER = "test.mosquitto.org"; // Broker MQTT público
 const int MQTT_PORT = 1883;               // Porta MQTT
 
@@ -201,3 +201,4 @@ void loop() {
   client.loop();
   delay(200); // Ajuste conforme a frequência desejada
 }
+
