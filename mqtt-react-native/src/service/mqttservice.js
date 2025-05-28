@@ -4,7 +4,7 @@ let isConnected = false;
 let messageCallback = null;
 
 const clientId = "mqtt_" + Math.random().toString(16).substr(2, 8);
-const client = new Client("test.mosquitto.org", 8081, clientId);
+const client = new Client("192.168.1.100", 8081, clientId);
 
 const connect = () => {
     if (isConnected && client.isConnected()) {

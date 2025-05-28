@@ -1,10 +1,20 @@
 import serial
 import csv
+import paho.mqtt.client as mqtt
 
 # Configure a porta e baudrate conforme seu ambiente
-SERIAL_PORT = 'COM6'  # Altere para sua porta (ex: 'COM4', '/dev/ttyUSB0')
+SERIAL_PORT = 'COM4'  # Altere para sua porta (ex: 'COM4', '/dev/ttyUSB0')
 BAUDRATE = 115200
 CSV_FILE = 'distancias20-400.csv'
+
+# Configurações do MQTT
+MQTT_BROKER = 'localhost'  # Altere para o endereço do broker remoto se necessário
+MQTT_PORT = 1883
+MQTT_TOPIC = 'sensor/distancia/teste5'  # Tópico específico para os dados
+
+# Inicializa o cliente MQTT
+mqtt_client = mqtt.Client()
+mqtt_client.connect(MQTT_BROKER, MQTT_PORT, 60)
 
 # Dica para erro de acesso negado:
 # - Feche o Monitor Serial da IDE Arduino ou qualquer outro programa que esteja usando a porta COM3.
@@ -31,8 +41,11 @@ with open(CSV_FILE, 'w', newline='') as csvfile:
                     valor = float(line)
                     writer.writerow([f"{valor:.3f}"])
                     print(f"{valor:.3f}")
+                    # Envia o valor para o broker MQTT em tempo real
+                    mqtt_client.publish(MQTT_TOPIC, f"{valor:.3f}")
                 except ValueError:
                     pass  # Ignora linhas que não são números
     except KeyboardInterrupt:
         print("\nFinalizado.")
 ser.close()
+mqtt_client.disconnect()
