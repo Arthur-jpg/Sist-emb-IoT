@@ -3,8 +3,8 @@
 #include <Ultrasonic.h> // Biblioteca do Erick Simões
 #include <math.h>
 
-#define TRIG_PIN 18  // Pino do Trigger
-#define ECHO_PIN 19  // Pino do Echo
+#define TRIG_PIN 10  // Pino do Trigger
+#define ECHO_PIN 11  // Pino do Echo
 
 const char* SSID_WIFI = "Teste";       // Nome da rede Wi-Fi
 const char* SENHA_WIFI = "eduw8101";     // Senha da rede Wi-Fi

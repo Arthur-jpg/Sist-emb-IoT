@@ -7,6 +7,15 @@ csv_files = glob.glob('distancias*.csv')
 
 resultados = []
 
+# Mapeamento dos arquivos para as distâncias reais
+arquivo_para_distancia = {
+    'distancias20-400.csv': '2 cm',
+    'distancias20-401.csv': '7 cm',
+    'distancias20-402.csv': '12 cm',
+    'distancias20-403.csv': '17 cm',
+    'distancias20-404.csv': '22 cm',
+}
+
 for fname in csv_files:
     df = pd.read_csv(fname)
     # Converte para float caso esteja como string
@@ -26,9 +35,19 @@ for fname in csv_files:
         'n amostras': len(df)
     })
 
+# Atualiza a lista de arquivos para garantir a ordem correta
+arquivos = [
+    'distancias20-400.csv',
+    'distancias20-401.csv',
+    'distancias20-402.csv',
+    'distancias20-403.csv',
+    'distancias20-404.csv',
+]
+
 # Mostra resultados individuais
-for r in resultados:
-    print(f"Arquivo: {r['arquivo']}")
+for i, r in enumerate(resultados):
+    distancia = arquivo_para_distancia.get(r['arquivo'], r['arquivo'])
+    print(f"Distância real: {distancia}")
     print(f"  Média: {r['media']:.4f} cm")
     print(f"  Desvio padrão: {r['desvio_padrao']:.4f} cm")
     print(f"  Mínimo: {r['min']:.4f} cm")
@@ -58,28 +77,33 @@ for fname in arquivos:
     df['distancia_cm'] = df['distancia_cm'].astype(float)
     dados.append(df['distancia_cm'])
 
+# Gráficos com rótulos de distância real
+rotulos_distancia = [arquivo_para_distancia.get(f, f) for f in arquivos]
+
 # 1. Boxplot das distâncias de cada medição
 fig1, ax1 = plt.subplots(figsize=(8, 6))
-ax1.boxplot(dados, labels=[f"Medição {i+1}" for i in range(len(arquivos))])
+ax1.boxplot(dados, labels=rotulos_distancia)
 ax1.set_title('Distribuição das Distâncias por Medição')
 ax1.set_ylabel('Distância (cm)')
-ax1.set_xlabel('Arquivo de Medição')
+ax1.set_xlabel('Distância Real do Papel ao Sensor')
 fig1.tight_layout()
 fig1.savefig('boxplot_distancias.png')
 plt.close(fig1)
 
-# 2. Médias e desvios padrão (barras com erro)
-fig2, ax2 = plt.subplots(figsize=(8, 6))
-ax2.bar(range(len(arquivos)), medias, yerr=desvios, capsize=8, color='royalblue', alpha=0.7)
+# 2. Gráfico de desvio padrão de cada medição
+fig2, ax2 = plt.subplots(figsize=(12, 8))
+ax2.bar(range(len(arquivos)), desvios, color='royalblue', alpha=0.7)
 ax2.set_xticks(range(len(arquivos)))
-ax2.set_xticklabels([f"Medição {i+1}" for i in range(len(arquivos))])
-ax2.set_ylabel('Distância média (cm)')
-ax2.set_title('Média e Desvio Padrão das Medições')
-media_geral = sum(medias)/len(medias)
-ax2.axhline(media_geral, color='red', linestyle='--', label=f'Média geral: {media_geral:.2f} cm')
+ax2.set_xticklabels(rotulos_distancia)
+ax2.set_ylabel('Desvio padrão (cm)')
+ax2.set_title('Desvio Padrão das Medições')
+media_desvio = sum(desvios)/len(desvios)
+ax2.axhline(media_desvio, color='red', linestyle='--', label=f'Média dos desvios: {media_desvio:.2f} cm')
+for i, v in enumerate(desvios):
+    ax2.text(i, v + 0.01, f"{v:.2f}", ha='center', va='bottom', fontsize=12)
 ax2.legend()
 fig2.tight_layout()
-fig2.savefig('medias_desvios.png')
+fig2.savefig('desvios_padrao.png')
 plt.close(fig2)
 
 # 3. Todas as séries de medições (linha)
@@ -87,7 +111,7 @@ fig3, ax3 = plt.subplots(figsize=(8, 6))
 for i, fname in enumerate(arquivos):
     df = pd.read_csv(fname)
     df['distancia_cm'] = df['distancia_cm'].astype(float)
-    ax3.plot(df['distancia_cm'].values, label=f"Medição {i+1}")
+    ax3.plot(df['distancia_cm'].values, label=f"{rotulos_distancia[i]}")
 ax3.set_title('Evolução das Distâncias em Cada Medição')
 ax3.set_xlabel('Amostra')
 ax3.set_ylabel('Distância (cm)')
@@ -100,7 +124,7 @@ plt.close(fig3)
 fig4, ax4 = plt.subplots(figsize=(8, 6))
 ax4.bar(range(len(arquivos)), amplitudes, color='orange', alpha=0.7)
 ax4.set_xticks(range(len(arquivos)))
-ax4.set_xticklabels([f"Medição {i+1}" for i in range(len(arquivos))])
+ax4.set_xticklabels(rotulos_distancia)
 ax4.set_ylabel('Amplitude (cm)')
 ax4.set_title('Amplitude (Máximo - Mínimo) de Cada Medição')
 media_amplitude = sum(amplitudes)/len(amplitudes)
