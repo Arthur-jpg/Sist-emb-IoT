@@ -1,0 +1,234 @@
+%% ------------- English version ------------
+% \documentclass[english]{sbrt}
+\documentclass[english,hidelinks]{sbrt}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{subfigure} % Added for the grid layout
+% \usepackage{hyperref}
+\newtheorem{theorem}{Theorem}
+\setlength {\marginparwidth }{2cm}
+\usepackage{todonotes}%[disable]
+\newcommand\rigel[1]{\todo[color=green, inline]{\textbf{Rigel}: #1}}
+\usepackage{orcidlink}
+\usepackage{hyperref}
+\usepackage{caption}
+\captionsetup{
+  font=footnotesize,
+  labelsep=period,
+  format=plain,
+  justification=raggedright,
+  singlelinecheck=false
+}
+% \definecolor{idcolor}{HTML}{A6CE39}
+% \newcommand{\orcid}[1]{\href{https://orcid.org/#1}{\includesvg[height = 2ex]{orcid}}}
+
+%% ---------------------------------------------
+
+\begin{document}
+\title{
+% A Computer Vision-Based Liveness Monitoring System for Remote Work
+A Computer Vision-Based System for Monitoring Liveness in Remote Work
+}
+
+\author{Filipe Oliveira de Saldanha da Gama, Rafael Senra Donner Jorge, Caio Rangel Fernandes, Marcio Moreira do Nascimento Filho, Rigel P. Fernandes\orcidlink{0000-0001-5269-2342}, and Thiago Silva de Souza
+\thanks{Filipe Oliveira de Saldanha da Gama, Rafael Senra Donner Jorge, Caio Rangel Fernandes, Marcio Moreira do Nascimento Filho, Rigel P. Fernandes, and Thiago Silva de Souza are part of the Computer Engineering and Software Engineering (Tech) programs at the Brazilian Institute of Capital Markets (Ibmec), Rio de Janeiro, RJ, Emails: 
+{\tt filipesgama@gmail.com},
+{\tt rafaeldonner14@gmail.com},
+{\tt cbnr1644@gmail.com},
+{\tt warmarcio617@gmail.com},
+{\tt rigelfernandes@gmail.com},
+{\tt t.souza@ibmec.edu.br}.}
+% \thanks{Antonio L. L. Ramos is with the Department of Science and Industry Systems (IRI), University of South-Eastern Norway (USN), Kongsberg, Norway; E-mail: {\tt antonio.ramos@usn.no}.}
+}
+
+\maketitle
+
+\markboth{XLIII BRAZILIAN SYMPOSIUM ON TELECOMMUNICATIONS AND SIGNAL PROCESSING - SBrT 2025, SEPTEMBER 29TH TO OCTOBER 2ND, NATAL, RN}{}
+
+\begin{abstract}
+This undergraduate paper proposes a home office time clock system that uses images captured from the user's webcam to detect the liveness of employees.
+% The system is based on a computer vision algorithm developed in Python, utilizing the dlib and OpenCV libraries.
+% The primary objective of this work is to demonstrate the core functionalities of the system, as well as to analyze its practical applications, advantages, and limitations.
+% ------------------------------
+% We evaluate computer vision techniques for monitoring employees in remote work.
+% The system was tested under challenging conditions, a low-light environment.
+% The experimental results indicate that the system achieves a 100\% detection rate in captured frames when the ambient illumination exceeds 7 lux.
+% ------------------------------------
+% This work evaluates computer vision techniques to monitor employee activity in remote work settings. The system was tested in challenging conditions, including low-light environments. The experimental results show that it achieves a 100\% detection rate in captured frames at ambient illumination levels near 7 lux.
+% --------------------------------------
+% Concerns about productivity and accountability in remote work environments are growing, thereby generating a high demand for solutions. This work evaluates computer vision techniques to monitor employee activity in remote work settings. Such a system offers a non-intrusive and reliable solution suitable for real-world deployment. The system was tested in challenging conditions, including low-light environments. The experimental results show that it achieves a 100\% % detection rate in captured frames at ambient illumination levels near 7 lux.
+% ----------------------------------------------
+Growing concerns about productivity and accountability in remote work environments have created a strong demand for effective monitoring solutions. This work evaluates computer vision techniques for tracking employee activity in such settings, offering a non-intrusive and reliable system suitable for real-world deployment. Experimental results from tests performed under challenging conditions, including low-light environments, demonstrate that the system achieves a 100\% detection rate in captured frames at ambient illumination levels near 7 lux.
+\end{abstract}
+\begin{keywords}
+Liveness Detection, Computer Vision, Remote Monitoring.
+\end{keywords}
+
+\section{Introduction}
+
+Monitoring employee work hours has long been a standard practice in traditional in-person workplaces.
+As an example, a Swiss court ruling allows companies to monitor employees' bathroom visits during working hours as a contributing factor in measuring productivity~\cite{Swiss}.
+Although such practices can be controversial, they underscore the importance placed on accurately tracking employee time and activity.
+However, with the growing shift toward home office arrangements, this task has become significantly more complex.
+Unlike physical workspaces, remote environments require new strategies and technologies to ensure that employees are present and actively engaged during work hours.
+
+Remote work has grown exponentially in recent years~\cite{martin2022digitally}.
+With this growth, there is a demand for technologies to monitor employees.
+During the COVID-19 pandemic, many companies were impacted and had to transition their employees to remote work~\cite{suavescu2022transition}.
+As a result, there was a demand for new ways for companies to monitor employee engagement remotely.
+
+Webcams, which are present on most laptops, capture the user’s image primarily for video calls, recordings, photos, etc.
+However, with the advent and evolution of computer vision, it is possible to use the camera to assess employee engagement during work at a low cost.
+
+This study evaluates the use of computer vision to monitor remote workers.
+In addition, the performance of the system is assessed under low-light conditions, an important scenario to consider for employees who prefer or need to work during nighttime hours.
+
+The rest of this work is organized as follows. Section~\ref{sec: II} examines the computer-vision-based liveness monitoring system, while Section~\ref{sec: III} details the system’s implementation. We then analyze the system’s performance in liveness detection and discuss encountered issues in Section~\ref{sec: IV}, and Section~\ref{sec: V} concludes the work.
+
+\section{Computer Vision-Based Monitoring System}
+\label{sec: II}
+Computer vision techniques that can be used for monitoring users are: face detection and recognition, blink detection, and hand gesture identification.
+
+Face detection and recognition~\cite{boyko2018performance} can be used in various applications.
+Blink detection~\cite{mohanty2019design} depends on face segmentation and the detection of specific eyelid pixels.
+These techniques have applications in detecting driver drowsiness.
+
+Hand detection~\cite{qi2024computer} can be used for robot interaction.
+This area has been growing to bridge human-robot barriers. The goal is to develop techniques that make communication with robots more natural.
+
+\section{The proposed method}
+\label{sec: III}
+
+The proposed scheme was implemented in Python, using the dlib, OpenCV, and mediapipe libraries.
+Figure~\ref{fig: (a) diagram} shows the system block diagram.
+Initially, the system converts the RGB color space to grayscale to reduce processing time.
+% In this new color space, we measure brightness and contrast to use these measures in the experimental trials.
+The first task is to detect and recognize the face using the dlib library by comparing a reference image (user's selfie) with the detected face.
+The second task is to detect the facial landmarks.
+% This processing method can be observed in Figure~\ref{fig:diagram}.
+To count eye blinks, the system uses facial landmarks and calculates the distance between the eyelids to determine whether the eyes are open or closed.
+
+% Figure~\ref{fig: system debug image} presents the blink counting and the moment the system prompts the user to a challenge to detect liveness.
+% The system can operate in different configurations: face detection only, with a combination of face detection and blink detection; or in a version that integrates face, blink, and liveness detection.
+Figure~\ref{fig: system debug image} shows the blink counting process and the moment when the system prompts the user with a liveness detection challenge. The system supports multiple configurations: face detection only, a combination of face and blink detection, or a full integration of face, blink, and liveness detection.
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=1.0\linewidth]{figs/DiagramaFinal.pdf}
+%     \caption{Diagram representing image processing.}
+%     \label{fig:diagram}
+% \end{figure}
+
+% Mediapipe is a library that enables hand detection through computer vision, as shown in Figure \ref{fig: system debug image}.
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=7.3cm]{figs/image.png}
+%     \caption{System interface with real-time visual annotations. Bottom left: hand detection using MediaPipe. Top left: blink counter, elapsed time since the last blink, and hand-raising challenge prompt. Center: eye detection implemented with dlib.}
+%     % \caption{Image with debug drawings. Bottom left: Hand detection with mediapipe. Top left: Blink counter, time counter since last blink, and hand-raising challenge instruction. Center: Eye detection with dlib.}
+%     \label{fig: Hand Detection with Mediapipe}
+% \end{figure}
+
+\begin{figure}
+    \centering
+    \subfigure[]{%
+        \includegraphics[width=0.48\linewidth]{figs/DiagramaFinal.pdf}%
+        \label{fig: (a) diagram}}
+    \hfill
+    \subfigure[]{%
+        \includegraphics[width=0.48\linewidth]{figs/image.png}%
+        \label{fig: system debug image}}
+        \caption{Diagram and system interface. (a) Block diagram of the system and (b) system with real-time visual annotations. Bottom left: hand detection using MediaPipe. Top left: blink counter, elapsed time since the last blink, and hand-raising challenge prompt. Center: eye detection implemented with dlib.}
+\end{figure}
+% \subsection{Libraries}
+
+% Mediapipe is a library that enables hand detection through computer vision, as shown in Figure \ref{fig: Hand Detection with Mediapipe}. This feature is used in implementing challenge functions, where after a specified time (in seconds), the user must show their hand within the challenge time limit. If the user fails to complete the challenge within the time limit, a challenge failed message is sent to the employer.
+% The face recognition library (typically used with dlib) is responsible for facial recognition, identifying faces by comparing a reference image with the detected face. For blink detection, dlib (for detecting facial landmarks, such as eyes) and OpenCV (for image processing) are commonly used together. Blinking detection is done by monitoring the eye landmarks and calculating the aspect ratio between points to determine whether the eyes are open or closed.
+
+% \subsection{The method}
+
+% Upon receiving the RGB image from the webcam, the program converts it to grayscale.
+% This improves efficiency in computer vision processing, enhancing program performance.
+% From this image, we perform facial detection and, independently, blink detection and/or liveness detection challenges. This processing method can be observed in Figure \ref{fig:diagram}.
+% The system can operate in different configurations: it may function solely with face detection, with a combination of face detection and blink detection, or in a version that integrates face detection, blink detection, and liveness detection.
+
+\section{Experimental Results}
+\label{sec: IV}
+
+% Figure~\ref{fig:grid} depicts the trials set-up to measure system performance in low-light conditions.
+% % , we prepared a set-up to the laptop webcam of the user was used to capture images in a dark room.
+% A light source was used to illuminate the user and a smartphone’s built-in lux meter was placed behind the user to measure light levels.
+% For each lighting scenario (from 0 to 8 lux), 20 frames were captured and stored, along with the average contrast and brightness of the frames.
+
+Figure~\ref{fig:grid} shows the setup to measure the performance of the system.
+We used a low-intensity light source to illuminate the subject and placed a smartphone with a built-in lux meter behind the user to measure light levels.
+We captured and stored 20 frames, along with respective average contrast and brightness, for each of the four lighting scenarios, with illumination varying from 0 to 8 lux.
+
+\begin{figure}
+    \centering
+    \subfigure[4 lux illumination]{%
+        \includegraphics[width=0.45\linewidth]{figs/teste4lux.png}%
+        \label{fig:4lux}}
+    \hfill
+    \subfigure[5 lux illumination]{%
+        \includegraphics[width=0.45\linewidth]{figs/teste5lux.png}%
+        \label{fig:5lux}}
+    \vspace{0.5cm}
+    \subfigure[6 lux illumination]{%
+        \includegraphics[width=0.45\linewidth]{figs/teste6lux.png}%
+        \label{fig:6lux}}
+    \hfill
+    \subfigure[7 lux illumination]{%
+        \includegraphics[width=0.45\linewidth]{figs/teste7lux.png}%
+        \label{fig:7lux}}
+    \caption{Test images under varying illumination levels.}
+    \label{fig:grid}
+\end{figure}
+
+% To compute the brightness we used the mean pixel intensity, as defined in:
+We measure brightness through the mean pixel intensity: 
+\begin{equation}
+    \mu = \frac{1}{N} \sum_{i=1}^{N} I_i
+\label{Eq. brightness}
+\end{equation}
+where $\mu$ is the average brightness, $N$ is the total number of pixels, and $I_i$ is the value of each pixel.
+% The contrast was calculated using standard deviation of pixel intensities, as shown in:
+
+The contrast is the standard deviation of pixel intensities:
+\begin{equation}
+    \sigma = \sqrt{\frac{1}{N} \sum_{i=1}^{N} (I_i - \mu)^2}
+    \label{eq.contrast}
+\end{equation}
+where $\sigma$ represents the contrast of the image.
+
+% Furthermore, for each scenario, we measured the accuracy of the proposed method in detecting the face.
+% Based on the results presented in Figure~\ref{fig: detection}, it was possible to note that with 5 lux, the system begins to detect the face.
+% From 7 lux and above, the system achieves 100\% detection rate.
+For each scenario, we evaluated the accuracy of the proposed face detection method. As shown in Figure~\ref{fig: detection}, the system begins detecting faces at 5 lux and achieves a 100\% detection rate at 7 lux or higher.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{figs/graphHomeOfficeSauronSytem.eps}
+    \caption{Graph of detection efficacy based on brightness and contrast.}
+    \label{fig: detection}
+\end{figure}
+
+\section{Conclusion}
+\label{sec: V}
+
+% In summary, the system performs well in detecting employee engagement and liveness in remote work situations.
+% Additionally, it includes anti-evasion systems that detect and notify the employer.
+% This system performs well even in a dark environment.
+% It provides an automated, low-cost solution for companies seeking greater control over their remote employees.
+% Future developments include an image pre-processing scheme to overcome the current 7 lux threshold, allowing the system to operate in darker environments.
+% Additional plans involve designing a user interface for the human resources team and developing a backend system to improve data processing and analysis.
+The system has a solid performance in detecting employee engagement and liveness in remote work scenarios, including low-light conditions. It also features mechanisms that notify employers of suspicious behavior. As an automated, low-cost solution, it offers companies a low-cost solution with enhanced automated anti-evasion, oversight, and monitoring of remote employees. Future work includes integrating image pre-processing techniques to enable operation below the current 7 lux threshold. Further plans involve developing a user interface for the human resources team and a back-end system to support advanced data processing and analysis.
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+% \appendix
+% Insert appendix information here.
+
+\end{document}

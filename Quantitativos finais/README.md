@@ -64,4 +64,6 @@ Além das métricas de precisão, foi calculada a **taxa de erro percentual méd
 
 O valor do MAPE representa o erro percentual médio do sistema em relação às distâncias reais. Para este experimento, o MAPE foi **baixo**, indicando que o sistema apresenta boa precisão para uso em monitoramento de estoque. Em aplicações de controle de estoque, taxas de erro percentuais baixas são desejáveis, pois garantem que o nível de papel seja estimado de forma confiável, minimizando alarmes falsos ou leituras incorretas.
 
+> **Nota sobre medições muito pequenas:** O sensor ultrassônico apresenta baixa performance e alta imprecisão para distâncias menores que 2 cm. Por esse motivo, nos experimentos, o recipiente de 20 cm foi testado com o papel posicionado a pelo menos 2 cm do sensor, garantindo maior confiabilidade nas leituras e evitando a faixa de menor precisão do dispositivo.
+
 ---
