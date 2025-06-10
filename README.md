@@ -6,6 +6,8 @@ O **Stock Monitoring** é um sistema baseado em IoT para monitoramento do estoqu
 
 O objetivo do projeto é otimizar a reposição de papel higiênico, garantindo maior eficiência na gestão de insumos e melhorando a experiência dos usuários em banheiros de locais públicos, como shoppings, hospitais e restaurantes.  
 
+> **ATUALIZAÇÃO (2ª FASE)**: O projeto agora conta com uma interface aprimorada e um estudo quantitativo completo sobre a precisão do sistema. Detalhes completos disponíveis no arquivo [PARTE2.md](PARTE2.md).
+
 ---  
 
 ## **2. Tecnologias Utilizadas**  
@@ -15,8 +17,10 @@ O objetivo do projeto é otimizar a reposição de papel higiênico, garantindo 
 | **ESP32** | Microcontrolador responsável pelo processamento e comunicação Wi-Fi. |  
 | **HC-SR04** | Sensor ultrassônico para medir a quantidade de papel restante. |  
 | **C (Arduino Framework)** | Linguagem de programação utilizada no firmware do ESP32. |  
-| **MQTT (Mosquitto)** | Protocolo de comunicação para envio de alertas ao servidor. |  
+| **MQTT (HiveMQ)** | Protocolo de comunicação para envio de alertas ao servidor. |  
 | **Wi-Fi** | Conexão de rede utilizada para comunicação do ESP32 com o servidor. |  
+| **Python** | Middleware para leitura serial e publicação no broker MQTT. |  
+| **React Native** | Desenvolvimento da interface mobile com alertas visuais inteligentes. |  
 | **Servidor na Nuvem** | Responsável por armazenar e processar os alertas recebidos. |  
 
 ---  
@@ -26,19 +30,24 @@ O objetivo do projeto é otimizar a reposição de papel higiênico, garantindo 
 O sistema opera da seguinte forma:  
 
 1. O ESP32 coleta dados do sensor ultrassônico posicionado no dispenser.  
-2. Quando o nível de papel atinge menos de 20% da capacidade do dispenser, o ESP32 envia um alerta via MQTT.  
-3. O broker MQTT (Mosquitto) recebe e repassa a mensagem para o sistema na nuvem.  
-4. O sistema receptor notifica os responsáveis via painel de controle e alerta móvel.  
+2. Os dados são enviados pela porta serial e processados por um middleware Python.
+3. O script Python publica os dados no broker MQTT (HiveMQ).
+4. O aplicativo React Native recebe os dados e exibe visualmente o status com alertas:
+   - Verde: Nível adequado (>50%)
+   - Amarelo: Nível médio (20-50%)
+   - Vermelho: Nível crítico (<20%)
+5. O sistema notifica os responsáveis via painel de controle e alerta móvel quando necessário.
 
 A tabela a seguir apresenta um resumo dos componentes e suas funções:  
 
 | Componente | Função |  
 |------------|-------------|  
-| **ESP32** | Processamento e envio de dados via Wi-Fi. |  
+| **ESP32** | Processamento e envio de dados via porta serial. |  
 | **HC-SR04** | Medição do nível de papel no dispenser. |  
-| **Mosquitto (Broker MQTT)** | Gerenciamento das mensagens entre ESP32 e servidor. |  
+| **Python Middleware** | Leitura serial e publicação no broker MQTT. |
+| **HiveMQ (Broker MQTT)** | Gerenciamento das mensagens entre middleware e aplicativo. |  
+| **React Native App** | Interface para monitoramento dos dispensers com alertas visuais. |
 | **Servidor na Nuvem** | Armazena os dados e emite alertas. |  
-| **Painel de Controle** | Interface para monitoramento dos dispensers. |  
 
 ---  
 
@@ -60,27 +69,49 @@ Embora o projeto utilize diversas tecnologias e metodologias já estabelecidas, 
 
 ---  
 
-## **6. Melhorias Futuras**  
+## **6. Melhorias Implementadas na 2ª Fase**
 
-O sistema está em fase inicial de desenvolvimento e poderá ser aprimorado com as seguintes funcionalidades:  
+Na segunda fase do projeto, diversas melhorias foram implementadas:
+
+| Melhorias | Descrição |  
+|------------|-------------|  
+| **Interface Aprimorada** | Nova interface com alertas visuais e mudança de cores para níveis críticos e médios. |  
+| **Middleware Python** | Implementação de script Python para comunicação entre Arduino e MQTT. |  
+| **Estudo Quantitativo** | Análise detalhada da precisão e confiabilidade do sistema. |  
+| **Visualização de Dados** | Geração de gráficos para análise da performance do sensor. |  
+| **Algoritmos de Alerta** | Refinamento dos algoritmos de detecção de níveis críticos. |  
+
+## **7. Melhorias Futuras**  
+
+O sistema continua em desenvolvimento e poderá ser aprimorado com as seguintes funcionalidades:  
 
 | Melhorias | Descrição |  
 |------------|-------------|  
 | **Otimização de Energia** | Melhor gerenciamento do consumo do ESP32 para maior eficiência. |  
 | **Compatibilidade Ampliada** | Adaptação para diferentes modelos de dispensers. |  
-| **Interface Gráfica Avançada** | Desenvolvimento de um painel web para visualização dos níveis de papel. |  
-| **Integração com Outros Sistemas** | Conexão com sistemas de gestão de estoque já existentes. |  
-| **Correção de inconsistências** | Correção na inconsistência da medida de desitância e aumento da precisão. |  
+| **Sistemas de Previsão** | Implementação de algoritmos de forecasting para prever necessidades de reabastecimento. |  
+| **Expansão de Monitoramento** | Suporte para múltiplos dispensers em ambientes complexos. |  
 
 ---  
 
 ## **7. Testes e Validação**  
 
-A fase de testes será realizada para validar a precisão das medições do sensor, a confiabilidade do envio de alertas via MQTT e a eficiência do sistema na prevenção da falta de papel. Os testes incluirão:  
+A fase de testes foi realizada para validar a precisão das medições do sensor, a confiabilidade do envio de alertas via MQTT e a eficiência do sistema na prevenção da falta de papel. Os testes incluíram:  
 
 - Validação da medição de nível de papel em diferentes dispensers.  
 - Testes de conectividade e latência do envio de alertas via MQTT.  
-- Testes de usabilidade do painel de controle (futuramente).  
+- Testes de usabilidade do painel de controle com interface aprimorada.  
+
+### **7.1. Estudo Quantitativo**  
+
+Foi realizado um estudo quantitativo detalhado para avaliar a precisão e repetibilidade do sistema:
+
+- **5 posições de teste**: 2cm, 7cm, 12cm, 17cm, 22cm
+- **Métricas analisadas**: Média, desvio padrão, valores mínimos/máximos, amplitude
+- **Taxa de erro percentual médio (MAPE)**: Calculada para validar a precisão geral do sistema
+- **Visualizações geradas**: Boxplot, séries temporais, desvio padrão, amplitude, erro percentual
+
+Os resultados completos do estudo estão disponíveis no diretório `Quantitativos finais`.
 
 ---  
 
