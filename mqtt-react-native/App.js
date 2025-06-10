@@ -1,16 +1,72 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Text, View, ScrollView, Animated, TouchableOpacity } from 'react-native';
 import { connect, setOnMessageCallback, isConnected, reconnect } from './src/service/mqttservice';
+import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
+
+// Configurar as notificações
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function App() {
   const [receivedMessages, setReceivedMessages] = useState([]);
   const [percentualFloat, setPercentualFloat] = useState(0);
   const [connectionStatus, setConnectionStatus] = useState(false);
   const [lastUpdateTime, setLastUpdateTime] = useState(null);
+  const [notificationSent, setNotificationSent] = useState(false);
   const animatedWidth = useState(new Animated.Value(0))[0];
+  const notificationListener = useRef();
+  const responseListener = useRef();
 
   const gerarIdUnico = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Função para solicitar permissões de notificação
+  async function registerForPushNotificationsAsync() {
+    try {
+      if (Constants.isDevice) {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        
+        if (existingStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+        
+        if (finalStatus !== 'granted') {
+          console.log('Permissão para notificações não concedida!');
+          return;
+        }
+      } else {
+        console.log('Notificações push só funcionam em dispositivos físicos');
+      }
+    } catch (error) {
+      console.error("Erro ao configurar notificações:", error);
+    }
+  }
+  
+  // Função para enviar notificação
+  async function sendNotification(titulo, corpo) {
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: titulo,
+          body: corpo,
+          sound: true,
+          priority: Notifications.AndroidNotificationPriority.HIGH,
+        },
+        trigger: null,
+      });
+      console.log("Notificação enviada!");
+    } catch (error) {
+      console.error("Erro ao enviar notificação:", error);
+    }
+  }
   
   // Atualiza a animação quando o valor percentual muda
   useEffect(() => {
@@ -21,6 +77,26 @@ export default function App() {
     }).start();
   }, [percentualFloat]);
 
+  // Configuração de notificações
+  useEffect(() => {
+    registerForPushNotificationsAsync();
+    
+    // Configurar os listeners para notificações
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log("Notificação recebida:", notification);
+    });
+    
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log("Resposta de notificação:", response);
+    });
+    
+    // Limpar os listeners quando o componente for desmontado
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+  
   // Verifica status de conexão a cada 2 segundos
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -53,6 +129,28 @@ export default function App() {
           const valor = parseFloat(mensagem);
           if (!isNaN(valor)) {
             setPercentualFloat(valor);
+            
+            // Verificar se o valor está abaixo de 20% para enviar notificação
+            if (valor < 20) {
+              // Enviar notificação apenas se não tiver enviado recentemente
+              if (!notificationSent) {
+                sendNotification(
+                  "Alerta de Nível Baixo!", 
+                  `O nível atual está em ${valor.toFixed(1)}%, abaixo do limite de 20%`
+                );
+                setNotificationSent(true);
+                
+                // Resetar o estado de notificação após 5 minutos
+                setTimeout(() => {
+                  setNotificationSent(false);
+                }, 5 * 60 * 1000);
+              }
+            } else {
+              // Se o valor voltar a ficar acima de 20%, permitir novas notificações
+              if (valor >= 25 && notificationSent) {
+                setNotificationSent(false);
+              }
+            }
           }
         } catch (error) {
           console.error("Erro ao converter mensagem para número:", error);
@@ -94,7 +192,14 @@ export default function App() {
       {/* Card com informação de sensor */}
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>Sensor de Distância</Text>
+          <View style={styles.cardTitleContainer}>
+            <Text style={styles.cardTitle}>Sensor de Distância</Text>
+            {percentualFloat < 20 && (
+              <View style={styles.alertBadge}>
+                <Text style={styles.alertText}>NÍVEL CRÍTICO</Text>
+              </View>
+            )}
+          </View>
           <Text style={styles.cardSubtitle}>
             Última atualização: {formatTime(lastUpdateTime)}
           </Text>
@@ -102,7 +207,12 @@ export default function App() {
 
         {/* Valor percentual com animação */}
         <View style={styles.valueContainer}>
-          <Text style={styles.valueText}>{percentualFloat.toFixed(1)}%</Text>
+          <Text style={[
+            styles.valueText,
+            percentualFloat < 20 ? styles.valueTextAlert : null
+          ]}>
+            {percentualFloat.toFixed(1)}%
+          </Text>
         </View>
 
         {/* Barra de progresso animada */}
@@ -115,8 +225,9 @@ export default function App() {
                   inputRange: [0, 100],
                   outputRange: ['0%', '100%'],
                 }),
-                backgroundColor: percentualFloat > 80 ? '#f44336' : 
-                               percentualFloat > 60 ? '#ff9800' : '#4caf50',
+                backgroundColor: percentualFloat < 20 ? '#ff3d00' :
+                               percentualFloat > 80 ? '#4caf50' : 
+                               percentualFloat > 60 ? '#8bc34a' : '#cddc39',
               }
             ]} 
           />
@@ -228,10 +339,27 @@ const styles = StyleSheet.create({
   cardHeader: {
     marginBottom: 16,
   },
+  cardTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+  },
+  alertBadge: {
+    backgroundColor: '#ff3d00',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+  },
+  alertText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 10,
   },
   cardSubtitle: {
     fontSize: 12,
@@ -246,6 +374,9 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     color: '#2196f3',
+  },
+  valueTextAlert: {
+    color: '#ff3d00',
   },
   progressBackground: {
     width: '100%',
